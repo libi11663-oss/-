@@ -170,21 +170,29 @@
         checkLogin();
     });
 
-    function checkLogin() {
+  function checkLogin() {
         const savedUser = localStorage.getItem('matchup_user');
         if (savedUser) {
-            currentUser = JSON.parse(savedUser);
-            applyUserUI(currentUser.name, currentUser.role);
-            
-            // 跳過所有歡迎頁與註冊頁
-            document.getElementById('page-welcome').classList.add('hidden-section');
-            document.getElementById('page-final-form').classList.add('hidden');
-            document.getElementById('app-main').classList.remove('hidden-section');
-            
-            switchTab('home');
-            loadPosts();
-            subscribeToPosts();
-            console.log("歡迎回來，" + currentUser.name);
+            try {
+                currentUser = JSON.parse(savedUser);
+                if (currentUser && currentUser.name) {
+                    applyUserUI(currentUser.name, currentUser.role);
+                    
+                    // --- 關鍵修正：強制隱藏歡迎頁並顯示主程式 ---
+                    document.getElementById('page-welcome').classList.add('hidden-section');
+                    document.getElementById('page-final-form').classList.add('hidden');
+                    
+                    const appMain = document.getElementById('app-main');
+                    appMain.classList.remove('hidden-section');
+                    appMain.style.display = 'block';
+
+                    switchTab('home');
+                    loadPosts();
+                    subscribeToPosts();
+                }
+            } catch (e) {
+                localStorage.removeItem('matchup_user');
+            }
         }
     }
 
@@ -463,24 +471,53 @@
         document.getElementById('login-otp').value = '';
     }
 
-    async function confirmLogin() {
+   async function confirmLogin() {
         const phone = document.getElementById('login-phone').value;
         const otp = document.getElementById('login-otp').value;
 
         if (!phone) return alert("請輸入電話號碼");
         if (otp !== "888888") return alert("驗證碼請輸入 888888");
 
-        // --- 這裡開始與 Supabase 連動 ---
-        // 告訴雲端：幫我從 users 資料表找手機號碼等於輸入值的資料
-        const { data, error } = await sb
-            .from('users')
-            .select('*')
-            .eq('phone', phone)
-            .single(); 
+        const loginBtn = document.querySelector('button[onclick="confirmLogin()"]');
+        loginBtn.innerText = "驗證中...";
+        loginBtn.disabled = true;
 
-        if (error || !data) {
-            return alert("雲端查無此帳號，請確認電話號碼或重新註冊");
+        try {
+            const { data, error } = await sb
+                .from('users')
+                .select('*')
+                .eq('phone', phone);
+
+            if (error) throw error;
+
+            if (data && data.length > 0) {
+                currentUser = data[0];
+                localStorage.setItem('matchup_user', JSON.stringify(currentUser));
+                applyUserUI(currentUser.name, currentUser.role);
+                
+                // --- 關鍵修正：徹底隱藏所有登入相關層 ---
+                document.getElementById('page-quick-login').classList.add('hidden');
+                document.getElementById('page-welcome').classList.add('hidden-section');
+                document.getElementById('page-final-form').classList.add('hidden');
+                
+                const appMain = document.getElementById('app-main');
+                appMain.classList.remove('hidden-section');
+                appMain.style.display = 'block'; 
+                
+                switchTab('home');
+                await loadPosts();
+                subscribeToPosts();
+                console.log("雲端登入成功：" + currentUser.name);
+            } else {
+                alert("查無此手機號碼，請先註冊");
+            }
+        } catch (err) {
+            alert("登入出錯：" + err.message);
+        } finally {
+            loginBtn.innerText = "登入";
+            loginBtn.disabled = false;
         }
+    }
 
         // 登入成功：把雲端抓回來的 data 存入本地記憶體
         currentUser = data;
