@@ -213,35 +213,48 @@
         document.getElementById('page-final-form').classList.remove('hidden');
     }
 
-    // --- 3. 進入 App (存入記憶體) ---
+   // --- 3. 進入 App (同時存入雲端與本地) ---
     async function enterApp() {
-    if (document.getElementById('otp-code').value !== "888888") return alert("驗證碼請輸入 888888");
-    const name = document.getElementById('display-name').value || '新朋友';
-    const phone = document.getElementById('user-phone').value;
+        if (document.getElementById('otp-code').value !== "888888") return alert("驗證碼請輸入 888888");
+        const name = document.getElementById('display-name').value || '新朋友';
+        const phone = document.getElementById('user-phone').value;
 
-    if (!phone) return alert("請輸入手機號碼以做為識別");
+        if (!phone) return alert("請輸入手機號碼以做為識別");
 
-    // 存入 LocalStorage
-    currentUser = { name: name, role: currentRole, phone: phone };
-    localStorage.setItem('matchup_user', JSON.stringify(currentUser));
+        // --- A. 存入 Supabase 雲端 ---
+        // 使用 upsert：如果手機號碼重複，會更新該筆資料；若無則新增
+        const { data, error } = await sb
+            .from('users')
+            .upsert({ 
+                phone: phone, 
+                name: name, 
+                role: currentRole 
+            }, { onConflict: 'phone' })
+            .select();
 
-    applyUserUI(name, currentRole);
-    
-    // 隱藏所有註冊頁面和模態框
-    document.getElementById('page-welcome').classList.add('hidden-section');
-    document.getElementById('page-final-form').classList.add('hidden');
-    document.getElementById('modal-legal').classList.add('hidden');
-    
-    // 顯示 App
-    document.getElementById('app-main').classList.remove('hidden-section');
-    
-    switchTab('home');
+        if (error) {
+            console.error("雲端同步失敗:", error.message);
+            return alert("雲端儲存失敗，請檢查 Supabase 設定或網路");
+        }
 
-    await loadPosts(); 
-    subscribeToPosts(); 
-    
-    console.log("成功進入 App，使用者：" + name);
-}
+        // --- B. 雲端成功後，將回傳資料存入 LocalStorage ---
+        currentUser = data[0]; 
+        localStorage.setItem('matchup_user', JSON.stringify(currentUser));
+
+        applyUserUI(currentUser.name, currentUser.role);
+        
+        // --- C. 切換畫面 ---
+        document.getElementById('page-welcome').classList.add('hidden-section');
+        document.getElementById('page-final-form').classList.add('hidden');
+        document.getElementById('modal-legal').classList.add('hidden');
+        document.getElementById('app-main').classList.remove('hidden-section');
+        
+        switchTab('home');
+        await loadPosts(); 
+        subscribeToPosts(); 
+        
+        console.log("註冊成功並已同步雲端：" + currentUser.name);
+    }
        // --- 登出功能 ---
     function logout() {
         if (confirm("確定要登出並切換帳號嗎？")) {
@@ -404,28 +417,32 @@
         if (!phone) return alert("請輸入電話號碼");
         if (otp !== "888888") return alert("驗證碼請輸入 888888");
 
-        // 查詢 LocalStorage 中是否有這個電話的帳號
-        const savedUser = localStorage.getItem('matchup_user');
-        if (savedUser) {
-            const user = JSON.parse(savedUser);
-            if (user.phone === phone) {
-                currentUser = user;
-                applyUserUI(user.name, user.role);
-                
-                document.getElementById('page-quick-login').classList.add('hidden');
-                document.getElementById('app-main').classList.remove('hidden-section');
-                
-                switchTab('home');
-                loadPosts();
-                subscribeToPosts();
-                
-                console.log("歡迎回來，" + user.name);
-            } else {
-                alert("電話號碼不匹配，請檢查");
-            }
-        } else {
-            alert("查無此帳號，請先註冊");
+        // --- 這裡開始與 Supabase 連動 ---
+        // 告訴雲端：幫我從 users 資料表找手機號碼等於輸入值的資料
+        const { data, error } = await sb
+            .from('users')
+            .select('*')
+            .eq('phone', phone)
+            .single(); 
+
+        if (error || !data) {
+            return alert("雲端查無此帳號，請確認電話號碼或重新註冊");
         }
+
+        // 登入成功：把雲端抓回來的 data 存入本地記憶體
+        currentUser = data;
+        localStorage.setItem('matchup_user', JSON.stringify(data));
+        applyUserUI(data.name, data.role);
+        
+        // 切換 UI
+        document.getElementById('page-quick-login').classList.add('hidden');
+        document.getElementById('app-main').classList.remove('hidden-section');
+        
+        switchTab('home');
+        loadPosts();
+        subscribeToPosts(); 
+        
+        console.log("雲端登入成功，歡迎回來：" + data.name);
     }
 </script>
 
