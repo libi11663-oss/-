@@ -216,11 +216,34 @@
         subscribeToPosts(); 
     }
 
-    // --- 登出功能 ---
+       // --- 登出功能 ---
     function logout() {
         if (confirm("確定要登出並切換帳號嗎？")) {
+            // 清除所有登入狀態
             localStorage.removeItem('matchup_user');
-            location.reload(); 
+            currentUser = null;
+            
+            // 重置 UI 狀態
+            document.getElementById('page-welcome').classList.remove('hidden-section');
+            document.getElementById('page-final-form').classList.add('hidden');
+            document.getElementById('app-main').classList.add('hidden-section');
+            document.getElementById('modal-legal').classList.add('hidden');
+            document.getElementById('modal-detail').classList.add('hidden');
+            document.getElementById('modal-post').classList.add('hidden');
+            
+            // 清空表單
+            document.getElementById('real-name').value = '';
+            document.getElementById('user-phone').value = '';
+            document.getElementById('otp-code').value = '';
+            document.getElementById('display-name').value = '';
+            document.getElementById('legal-check').checked = false;
+            
+            // 重置按鈕狀態
+            const btn = document.getElementById('btn-legal-next');
+            btn.disabled = true;
+            btn.className = "w-full bg-gray-300 text-white py-4 rounded-xl font-bold";
+            
+            console.log("已登出，回到歡迎頁");
         }
     }
 
