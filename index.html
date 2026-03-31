@@ -458,7 +458,7 @@
     }
 
     function closeDetail() { document.getElementById('modal-detail').classList.add('hidden'); }
-  // --- 快速登入功能 ---
+ // --- 快速登入功能 ---
     function quickLogin() {
         document.getElementById('page-welcome').classList.add('hidden-section');
         document.getElementById('page-quick-login').classList.remove('hidden');
@@ -471,7 +471,18 @@
         document.getElementById('login-otp').value = '';
     }
 
- try {
+    async function confirmLogin() {
+        const phone = document.getElementById('login-phone').value;
+        const otp = document.getElementById('login-otp').value;
+
+        if (!phone) return alert("請輸入手機號碼");
+        if (otp !== "888888") return alert("驗證碼請輸入 888888");
+
+        const loginBtn = document.querySelector('button[onclick="confirmLogin()"]');
+        loginBtn.innerText = "驗證中...";
+        loginBtn.disabled = true;
+
+        try {
             const { data, error } = await sb
                 .from('users')
                 .select('*')
@@ -484,10 +495,11 @@
                 localStorage.setItem('matchup_user', JSON.stringify(currentUser));
                 applyUserUI(currentUser.name, currentUser.role);
                 
+                // 隱藏登入頁與歡迎頁
                 document.getElementById('page-quick-login').classList.add('hidden');
                 document.getElementById('page-welcome').classList.add('hidden-section');
-                document.getElementById('page-final-form').classList.add('hidden');
                 
+                // 顯示主程式
                 const appMain = document.getElementById('app-main');
                 appMain.classList.remove('hidden-section');
                 appMain.style.display = 'block'; 
@@ -497,20 +509,16 @@
                 subscribeToPosts();
                 console.log("雲端登入成功：" + currentUser.name);
             } else {
-                alert("查無此手機號碼，請先註冊");
+                alert("查無此手機號碼，請先選擇身分進行註冊");
             }
         } catch (err) {
+            console.error("登入出錯:", err.message);
             alert("登入出錯：" + err.message);
         } finally {
             loginBtn.innerText = "登入";
             loginBtn.disabled = false;
         }
     }
-
-    // 🔴 請刪除下面這段原本重複且多出來的破碎程式碼：
-    // currentUser = data;
-    // localStorage.setItem('matchup_user', JSON.stringify(data));
-    // ...以此類推
 </script>
 </body>
 </html>
