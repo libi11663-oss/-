@@ -279,20 +279,29 @@
         }
     }
     // --- 登出功能 (修正版) ---
-    function logout() {
-        if (confirm("確定要登出並切換帳號嗎？")) {
-            // 1. 清除本地存儲
-            localStorage.removeItem('matchup_user');
-            currentUser = null;
-            
-            // 2. 徹底重置所有頁面的顯示狀態
-            const allPages = ['page-welcome', 'page-quick-login', 'page-final-form', 'modal-legal', 'app-main', 'modal-detail', 'modal-post'];
-            allPages.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    el.style.display = 'none'; // 先全部關掉
-                    el.classList.add('hidden-section'); // 同步 class 狀態
-                }
+   // 覆蓋這整個函數
+function logout() {
+    if (confirm("確定要登出並切換帳號嗎？")) {
+        localStorage.removeItem('matchup_user');
+        currentUser = null;
+
+        // 1. 隱藏主程式
+        const appMain = document.getElementById('app-main');
+        appMain.style.display = 'none';
+        appMain.classList.add('hidden-section');
+
+        // 2. 顯示歡迎頁 (注意：歡迎頁通常是 flex 佈局)
+        const welcome = document.getElementById('page-welcome');
+        welcome.style.display = 'flex';
+        welcome.classList.remove('hidden-section');
+
+        // 3. 確保其他登入彈窗也關閉
+        document.getElementById('page-quick-login').classList.add('hidden');
+        document.getElementById('page-final-form').classList.add('hidden');
+        
+        console.log("已徹底登出");
+    }
+}
             });
             
             // 3. 只顯示歡迎頁
@@ -340,26 +349,22 @@
    // 定義一個全域變數來追蹤是否已經監聽過
     let isSubscribed = false;
 
-    function subscribeToPosts() {
-        // 如果已經在監聽了，就直接跳出，不要重複 subscribe
-        if (isSubscribed) return;
-
-        sb.channel('public:posts')
-            .on('postgres_changes', { 
-                event: 'INSERT', 
-                schema: 'public', 
-                table: 'posts' 
-            }, payload => {
-                console.log("偵測到新貼文:", payload.new);
-                renderCard(payload.new);
-            })
-            .subscribe((status) => {
-                if (status === 'SUBSCRIBED') {
-                    isSubscribed = true; // 標記為已監聽成功
-                    console.log("實時同步已啟動");
-                }
-            });
+   // 覆蓋這整個函數
+function subscribeToPosts() {
+    if (postChannel) {
+        sb.removeChannel(postChannel); // 關鍵：先移除舊的
     }
+
+    postChannel = sb.channel('public:posts')
+        .on('postgres_changes', { 
+            event: 'INSERT', 
+            schema: 'public', 
+            table: 'posts' 
+        }, payload => {
+            renderCard(payload.new);
+        })
+        .subscribe();
+}
 
     function renderCard(post) {
         const container = document.getElementById('main-feed-container');
