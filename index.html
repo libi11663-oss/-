@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MatchUp v52 - 記憶登入版</title>
+    <title>MatchUp v52 - 記憶登入修復版</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .hidden-section { display: none; }
+        .hidden-section { display: none !important; }
         .app-gradient { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
         .tab-active { color: #6366f1 !important; transform: scale(1.1); }
         .agreement-box::-webkit-scrollbar { width: 6px; }
@@ -21,58 +21,58 @@
 </head>
 <body class="bg-gray-50 font-sans">
 
-   <section id="page-welcome" class="fixed inset-0 z-[100] app-gradient flex items-center justify-center p-6 text-white text-center">
-    <div class="max-w-md w-full">
-        <h1 class="text-4xl font-bold mb-4 tracking-tighter italic">MatchUp</h1>
-        <p class="mb-12 opacity-80 font-light">雲端即時媒合平台</p>
-        <div class="space-y-4">
-            <button onclick="startFlow('client')" class="w-full bg-white text-indigo-600 py-4 rounded-2xl font-bold shadow-xl active:scale-95 transition">我是委託者</button>
-            <button onclick="startFlow('provider')" class="w-full bg-indigo-900/30 border border-white/50 py-4 rounded-2xl font-bold active:scale-95 transition">我是接案者</button>
-            <button onclick="quickLogin()" class="w-full bg-white/20 border border-white/50 py-4 rounded-2xl font-bold active:scale-95 transition">
-                <i class="fas fa-arrow-right-to-bracket mr-2"></i> 已有帳號登入
-            </button>
+    <section id="page-welcome" class="fixed inset-0 z-[100] app-gradient flex items-center justify-center p-6 text-white text-center">
+        <div class="max-w-md w-full">
+            <h1 class="text-4xl font-bold mb-4 tracking-tighter italic">MatchUp</h1>
+            <p class="mb-12 opacity-80 font-light">雲端即時媒合平台</p>
+            <div class="space-y-4">
+                <button onclick="startFlow('client')" class="w-full bg-white text-indigo-600 py-4 rounded-2xl font-bold shadow-xl active:scale-95 transition">我是委託者</button>
+                <button onclick="startFlow('provider')" class="w-full bg-indigo-900/30 border border-white/50 py-4 rounded-2xl font-bold active:scale-95 transition">我是接案者</button>
+                <button onclick="quickLogin()" class="w-full bg-white/20 border border-white/50 py-4 rounded-2xl font-bold active:scale-95 transition">
+                    <i class="fas fa-arrow-right-to-bracket mr-2"></i> 已有帳號登入
+                </button>
+            </div>
         </div>
-    </div>
-</section>
-<section id="page-quick-login" class="fixed inset-0 z-[120] bg-white hidden p-6 overflow-y-auto text-left">
-    <div class="max-w-md mx-auto space-y-6">
-        <h2 class="text-2xl font-bold italic underline decoration-indigo-200">帳號登入</h2>
-        <div>
-            <label class="block text-sm font-bold text-gray-600 mb-2">聯絡電話</label>
-            <input type="tel" id="login-phone" maxlength="10" class="w-full border-b py-2 outline-none text-lg" placeholder="輸入您的電話">
+    </section>
+
+    <section id="page-quick-login" class="fixed inset-0 z-[120] bg-white hidden p-6 overflow-y-auto">
+        <div class="max-w-md mx-auto space-y-6 pt-10">
+            <h2 class="text-2xl font-bold italic underline decoration-indigo-200">帳號登入</h2>
+            <div>
+                <label class="block text-sm font-bold text-gray-600 mb-2">聯絡電話</label>
+                <input type="tel" id="login-phone" maxlength="10" class="w-full border-b py-2 outline-none text-lg" placeholder="輸入您的電話">
+            </div>
+            <div class="flex space-x-2">
+                <input type="number" id="login-otp" class="flex-1 border-b py-2 outline-none" placeholder="驗證碼 (888888)">
+                <button onclick="alert('測試驗證碼：888888')" class="text-indigo-600 font-bold px-2 text-sm">發送</button>
+            </div>
+            <div class="flex space-x-3 pt-4">
+                <button onclick="backToWelcome()" class="flex-1 border border-gray-300 text-gray-600 py-4 rounded-2xl font-bold active:bg-gray-50 transition">返回</button>
+                <button onclick="confirmLogin()" class="flex-1 bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-xl active:scale-95 transition">登入</button>
+            </div>
         </div>
-        <div class="flex space-x-2">
-            <input type="number" id="login-otp" class="flex-1 border-b py-2 outline-none" placeholder="驗證碼 (888888)">
-            <button onclick="alert('測試驗證碼：888888')" class="text-indigo-600 font-bold px-2 text-sm">發送</button>
-        </div>
-        <div class="flex space-x-3 pt-4">
-            <button onclick="backToWelcome()" class="flex-1 border border-gray-300 text-gray-600 py-4 rounded-2xl font-bold active:bg-gray-50 transition">返回</button>
-            <button onclick="confirmLogin()" class="flex-1 bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-xl active:scale-95 transition">登入</button>
-        </div>
-    </div>
-</section>
+    </section>
+
     <div id="modal-legal" class="fixed inset-0 z-[200] bg-black/60 hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl flex flex-col max-h-[90vh]">
             <h2 class="text-xl font-bold mb-4 flex items-center shrink-0"><i class="fas fa-file-signature mr-2 text-indigo-600"></i> 平台服務協議</h2>
             <div class="agreement-box overflow-y-auto bg-gray-50 p-5 rounded-xl text-sm text-gray-700 leading-relaxed mb-6 border border-gray-200">
-                <div class="space-y-6 text-xs text-left">
+                <div class="space-y-6 text-xs">
                     <section><h3 class="font-bold text-gray-900 border-l-4 border-indigo-500 pl-2 mb-2">第一條：平台定位</h3><p>本平台僅提供訊息對接與金流代管服務。</p></section>
                     <section><h3 class="font-bold text-gray-900 border-l-4 border-indigo-500 pl-2 mb-2">第二條：資料保護</h3><p>註冊須提供真實姓名與電話，僅供糾紛核對使用。</p></section>
                     <section><h3 class="font-bold text-red-600 border-l-4 border-red-500 pl-2 mb-2">第三條：禁止私下交易</h3><p>嚴禁交換外部聯絡方式，違者永久封號。</p></section>
                 </div>
             </div>
-            <div class="flex items-start mb-6 shrink-0 text-left">
+            <div class="flex items-start mb-6 shrink-0">
                 <input type="checkbox" id="legal-check" class="mt-1 w-5 h-5 rounded border-gray-300 text-indigo-600">
                 <label for="legal-check" class="ml-3 text-sm text-gray-600 font-medium">我已閱讀並同意以上協議內容。</label>
             </div>
-            <div class="flex space-x-3 shrink-0">
-                <button id="btn-legal-next" disabled onclick="goNextToRegister()" class="w-full bg-gray-300 text-white py-4 rounded-xl font-bold transition">同意並繼續</button>
-            </div>
+            <button id="btn-legal-next" disabled onclick="goNextToRegister()" class="w-full bg-gray-300 text-white py-4 rounded-xl font-bold transition">同意並繼續</button>
         </div>
     </div>
 
-    <section id="page-final-form" class="fixed inset-0 z-[120] bg-white hidden p-6 overflow-y-auto text-left">
-        <div class="max-w-md mx-auto space-y-6">
+    <section id="page-final-form" class="fixed inset-0 z-[120] bg-white hidden p-6 overflow-y-auto">
+        <div class="max-w-md mx-auto space-y-6 pt-10">
             <h2 class="text-2xl font-bold italic underline decoration-indigo-200">驗證身分</h2>
             <input type="text" id="real-name" class="w-full border-b py-2 outline-none" placeholder="真實姓名">
             <div class="flex space-x-2">
@@ -81,7 +81,7 @@
             </div>
             <input type="number" id="otp-code" class="w-full border-b py-2 outline-none" placeholder="驗證碼 (888888)">
             <input id="display-name" type="text" class="w-full border-b py-2 border-indigo-200 font-bold" placeholder="設定顯示暱稱">
-            <button onclick="enterApp()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-xl active:scale-95 transition">進入平台</button>
+            <button onclick="enterApp()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-xl active:scale-95 transition">完成註冊並進入</button>
         </div>
     </section>
 
@@ -96,10 +96,10 @@
             <div class="p-4 grid grid-cols-2 gap-3" id="main-feed-container"></div>
         </section>
 
-        <section id="tab-profile" class="tab-content hidden-section p-6 text-center">
-            <div class="w-24 h-24 bg-indigo-100 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl text-indigo-500 font-bold shadow-inner" id="profile-avatar">詹</div>
+        <section id="tab-profile" class="tab-content hidden-section p-6 text-center pt-16">
+            <div class="w-24 h-24 bg-indigo-100 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl text-indigo-500 font-bold shadow-inner" id="profile-avatar">?</div>
             <h2 id="profile-display-name" class="text-xl font-bold italic underline">使用者</h2>
-            <span id="profile-role-tag" class="text-[10px] bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full font-bold uppercase mt-2 inline-block tracking-widest tracking-tighter">ROLE</span>
+            <span id="profile-role-tag" class="text-[10px] bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full font-bold uppercase mt-2 inline-block tracking-widest">ROLE</span>
             <div class="grid grid-cols-2 gap-4 mt-8">
                 <div class="bg-white p-4 rounded-2xl border shadow-sm"><p class="font-bold text-lg" id="post-count">0</p><p class="text-[10px] text-gray-400 uppercase font-black tracking-widest">Posts</p></div>
                 <div class="bg-white p-4 rounded-2xl border shadow-sm"><p class="font-bold text-lg">5.0</p><p class="text-[10px] text-gray-400 uppercase font-black tracking-widest">Rating</p></div>
@@ -125,27 +125,27 @@
                 <button onclick="closeDetail()" class="absolute top-4 left-4 w-10 h-10 bg-black/30 text-white rounded-full flex items-center justify-center backdrop-blur-md z-10">&times;</button>
                 <img id="detail-img" src="" class="w-full h-full object-cover">
             </div>
-            <div class="p-6 bg-white rounded-t-[30px] -mt-8 relative z-20 shadow-2xl flex-1 text-left">
-                <span id="detail-tag" class="bg-indigo-100 text-indigo-700 text-[10px] px-3 py-1 rounded-full font-bold uppercase shadow-sm">標籤</span>
+            <div class="p-6 bg-white rounded-t-[30px] -mt-8 relative z-20 shadow-2xl flex-1">
+                <span id="detail-tag" class="bg-indigo-100 text-indigo-700 text-[10px] px-3 py-1 rounded-full font-bold uppercase">標籤</span>
                 <h2 id="detail-title" class="text-2xl font-black text-gray-900 mt-3">標題</h2>
                 <div class="flex items-center mt-4 pb-4 border-b">
-                    <div id="detail-avatar" class="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center text-white text-xs font-bold mr-3">詹</div>
+                    <div id="detail-avatar" class="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center text-white text-xs font-bold mr-3">?</div>
                     <span id="detail-author" class="text-sm font-bold text-gray-600">作者</span>
                 </div>
                 <div class="mt-6"><p id="detail-desc" class="text-gray-600 leading-relaxed text-sm whitespace-pre-wrap">描述內容</p></div>
             </div>
-            <footer class="p-6 bg-white border-t sticky bottom-0"><button class="w-full app-gradient text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition">立即聯絡</button></footer>
+            <footer class="p-6 bg-white border-t sticky bottom-0"><button class="w-full app-gradient text-white py-4 rounded-2xl font-bold shadow-lg">立即聯絡</button></footer>
         </div>
     </div>
 
-    <div id="modal-post" class="fixed inset-0 bg-white z-[250] hidden p-6 overflow-y-auto text-left">
+    <div id="modal-post" class="fixed inset-0 bg-white z-[250] hidden p-6 overflow-y-auto">
         <div class="max-w-md mx-auto">
             <div class="flex justify-between items-center mb-6">
                 <button onclick="closePostModal()" class="text-2xl">&times;</button>
                 <h3 id="post-modal-title" class="font-bold text-lg italic">發布內容</h3>
                 <button onclick="submitPost()" class="text-indigo-600 font-bold px-4">發布</button>
             </div>
-            <div id="post-image-area" class="aspect-video bg-gray-100 rounded-2xl mb-6 flex items-center justify-center border-2 border-dashed border-gray-300">
+            <div class="aspect-video bg-gray-100 rounded-2xl mb-6 flex items-center justify-center border-2 border-dashed border-gray-300">
                 <i class="fas fa-image text-gray-300 text-4xl"></i>
             </div>
             <div class="space-y-4">
@@ -158,35 +158,27 @@
 
 <script>
     // --- 1. 初始化 Supabase ---
-    const SB_URL = "https://cwzxjhgokymspqatxsnt.supabase.co";
-    const SB_KEY = "sb_publishable_0MLR1QmRlbuF5vzadGG2MQ_D735rZgl";
+    const SB_URL = "https://cwzxjhokymspqatxsnt.supabase.co"; // 請確認此 URL 是否正確
+    const SB_KEY = "sb_publishable_0MLR1QmRlbuF5vzadGG2MQ_D735rZgl"; 
     const sb = supabase.createClient(SB_URL, SB_KEY);
 
     let currentRole = '';
     let currentUser = null;
+    let postChannel = null;
 
     // --- 啟動時檢查登入狀態 ---
     document.addEventListener('DOMContentLoaded', () => {
         checkLogin();
     });
 
-  function checkLogin() {
+    function checkLogin() {
         const savedUser = localStorage.getItem('matchup_user');
         if (savedUser) {
             try {
                 currentUser = JSON.parse(savedUser);
                 if (currentUser && currentUser.name) {
+                    showAppUI();
                     applyUserUI(currentUser.name, currentUser.role);
-                    
-                    // --- 關鍵修正：強制隱藏歡迎頁並顯示主程式 ---
-                    document.getElementById('page-welcome').classList.add('hidden-section');
-                    document.getElementById('page-final-form').classList.add('hidden');
-                    
-                    const appMain = document.getElementById('app-main');
-                    appMain.classList.remove('hidden-section');
-                    appMain.style.display = 'block';
-
-                    switchTab('home');
                     loadPosts();
                     subscribeToPosts();
                 }
@@ -196,23 +188,25 @@
         }
     }
 
-   function applyUserUI(name, role) {
-        if (!name) return;
-        currentRole = role;
+    function showAppUI() {
+        document.getElementById('page-welcome').classList.add('hidden-section');
+        document.getElementById('page-quick-login').classList.add('hidden');
+        document.getElementById('page-final-form').classList.add('hidden');
+        document.getElementById('modal-legal').classList.add('hidden');
         
-        // 確保元件存在才寫入
-        const nameEl = document.getElementById('profile-display-name');
-        const roleEl = document.getElementById('profile-role-tag');
-        const avatarEl = document.getElementById('profile-avatar');
-
-        if (nameEl) nameEl.innerText = name;
-        if (roleEl) roleEl.innerText = role === 'client' ? '委託者' : '接案者';
-        if (avatarEl) avatarEl.innerText = name.charAt(0);
-        
-        console.log("UI 已更新為：", name, role);
+        const appMain = document.getElementById('app-main');
+        appMain.classList.remove('hidden-section');
+        switchTab('home');
     }
 
-    // --- 2. 核心導覽功能 ---
+    function applyUserUI(name, role) {
+        currentRole = role;
+        document.getElementById('profile-display-name').innerText = name;
+        document.getElementById('profile-role-tag').innerText = role === 'client' ? '委託者' : '接案者';
+        document.getElementById('profile-avatar').innerText = name.charAt(0);
+    }
+
+    // --- 2. 導覽功能 ---
     function startFlow(role) { 
         currentRole = role; 
         document.getElementById('modal-legal').classList.remove('hidden'); 
@@ -226,218 +220,147 @@
 
     function goNextToRegister() {
         document.getElementById('modal-legal').classList.add('hidden');
-        document.getElementById('page-welcome').classList.add('hidden-section');
         document.getElementById('page-final-form').classList.remove('hidden');
     }
-    
-   // --- 3. 進入 App (同時存入雲端與本地) ---
-   async function enterApp() {
+
+    function quickLogin() {
+        document.getElementById('page-welcome').classList.add('hidden-section');
+        document.getElementById('page-quick-login').classList.remove('hidden');
+    }
+
+    function backToWelcome() {
+        document.getElementById('page-quick-login').classList.add('hidden');
+        document.getElementById('page-welcome').classList.remove('hidden-section');
+    }
+
+    // --- 3. 登入與註冊邏輯 ---
+    async function enterApp() {
         if (document.getElementById('otp-code').value !== "888888") return alert("驗證碼請輸入 888888");
-        
         const name = document.getElementById('display-name').value || '新朋友';
         const phone = document.getElementById('user-phone').value;
         const realName = document.getElementById('real-name').value;
 
-        if (!phone || !realName) return alert("請填寫完整電話與真實姓名");
-
-        const enterBtn = document.querySelector('button[onclick="enterApp()"]');
-        enterBtn.innerText = "同步中...";
-        enterBtn.disabled = true;
+        if (!phone || !realName) return alert("請填寫完整資訊");
 
         try {
             const { data, error } = await sb
                 .from('users')
-                .upsert({ phone: phone, name: name, role: currentRole }, { onConflict: 'phone' })
+                .upsert({ phone, name, role: currentRole }, { onConflict: 'phone' })
                 .select();
 
             if (error) throw error;
 
-            currentUser = (data && data.length > 0) ? data[0] : { phone, name, role: currentRole };
+            currentUser = data[0];
             localStorage.setItem('matchup_user', JSON.stringify(currentUser));
-            
-            // 強制切換 UI
+            showAppUI();
             applyUserUI(currentUser.name, currentUser.role);
-            
-            // 這裡最重要：徹底關閉所有登入層
-            document.getElementById('page-welcome').style.display = 'none';
-            document.getElementById('page-final-form').style.display = 'none';
-            document.getElementById('modal-legal').style.display = 'none';
-            
-            const appMain = document.getElementById('app-main');
-            appMain.classList.remove('hidden-section');
-            appMain.style.display = 'block';
-
-            switchTab('home');
-            await loadPosts();
+            loadPosts();
             subscribeToPosts();
-
         } catch (err) {
             alert("同步失敗：" + err.message);
-        } finally {
-            enterBtn.innerText = "進入平台";
-            enterBtn.disabled = false;
-        }
-    }
-    // --- 登出功能 (修正版) ---
-   // 覆蓋這整個函數
-function logout() {
-    if (confirm("確定要登出並切換帳號嗎？")) {
-        localStorage.removeItem('matchup_user');
-        currentUser = null;
-
-        // 1. 隱藏主程式
-        const appMain = document.getElementById('app-main');
-        appMain.style.display = 'none';
-        appMain.classList.add('hidden-section');
-
-        // 2. 顯示歡迎頁 (注意：歡迎頁通常是 flex 佈局)
-        const welcome = document.getElementById('page-welcome');
-        welcome.style.display = 'flex';
-        welcome.classList.remove('hidden-section');
-
-        // 3. 確保其他登入彈窗也關閉
-        document.getElementById('page-quick-login').classList.add('hidden');
-        document.getElementById('page-final-form').classList.add('hidden');
-        
-        console.log("已徹底登出");
-    }
-}
-            });
-            
-            // 3. 只顯示歡迎頁
-            const welcome = document.getElementById('page-welcome');
-            if (welcome) {
-                welcome.style.display = 'flex'; // 歡迎頁是 flex 佈局
-                welcome.classList.remove('hidden-section');
-            }
-            
-            // 4. 清空輸入欄位
-            ['real-name', 'user-phone', 'otp-code', 'display-name', 'login-phone', 'login-otp'].forEach(id => {
-                const input = document.getElementById(id);
-                if (input) input.value = '';
-            });
-            
-            const legalCheck = document.getElementById('legal-check');
-            if (legalCheck) legalCheck.checked = false;
-            
-            // 5. 重置協議按鈕
-            const btn = document.getElementById('btn-legal-next');
-            if (btn) {
-                btn.disabled = true;
-                btn.className = "w-full bg-gray-300 text-white py-4 rounded-xl font-bold";
-            }
-            
-            console.log("已徹底登出並重置狀態");
         }
     }
 
-    // --- 4. 雲端資料同步 ---
+    async function confirmLogin() {
+        const phone = document.getElementById('login-phone').value;
+        if (document.getElementById('login-otp').value !== "888888") return alert("驗證碼錯誤");
+
+        try {
+            const { data, error } = await sb.from('users').select('*').eq('phone', phone);
+            if (error) throw error;
+            if (data.length > 0) {
+                currentUser = data[0];
+                localStorage.setItem('matchup_user', JSON.stringify(currentUser));
+                showAppUI();
+                applyUserUI(currentUser.name, currentUser.role);
+                loadPosts();
+                subscribeToPosts();
+            } else {
+                alert("查無此號碼，請先註冊");
+            }
+        } catch (err) {
+            alert("登入失敗");
+        }
+    }
+
+    function logout() {
+        if (confirm("確定要登出嗎？")) {
+            localStorage.removeItem('matchup_user');
+            currentUser = null;
+            if (postChannel) sb.removeChannel(postChannel);
+            
+            document.getElementById('app-main').classList.add('hidden-section');
+            document.getElementById('page-welcome').classList.remove('hidden-section');
+        }
+    }
+
+    // --- 4. 貼文功能 ---
     async function loadPosts() {
         const { data, error } = await sb.from('posts').select('*').order('id', { ascending: false });
-        if (error) return console.error("抓取失敗:", error.message);
-
+        if (error) return;
         const container = document.getElementById('main-feed-container');
-        container.innerHTML = ''; 
-
-        if (data && data.length > 0) {
-            data.forEach(post => renderCard(post));
-        } else {
-            container.innerHTML = '<div class="col-span-2 text-center py-20 text-gray-400 text-sm italic">目前沒有貼文</div>';
-        }
+        container.innerHTML = '';
+        if (data) data.forEach(post => renderCard(post));
     }
 
-   // 定義一個全域變數來追蹤是否已經監聽過
-    let isSubscribed = false;
-
-   // 覆蓋這整個函數
-function subscribeToPosts() {
-    if (postChannel) {
-        sb.removeChannel(postChannel); // 關鍵：先移除舊的
+    function subscribeToPosts() {
+        if (postChannel) sb.removeChannel(postChannel);
+        postChannel = sb.channel('public:posts')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, payload => {
+                renderCard(payload.new);
+            })
+            .subscribe();
     }
-
-    postChannel = sb.channel('public:posts')
-        .on('postgres_changes', { 
-            event: 'INSERT', 
-            schema: 'public', 
-            table: 'posts' 
-        }, payload => {
-            renderCard(payload.new);
-        })
-        .subscribe();
-}
 
     function renderCard(post) {
         const container = document.getElementById('main-feed-container');
-        const tagClass = post.role === 'client' ? 'bg-amber-100 text-amber-700' : 'bg-indigo-100 text-indigo-700';
-        const tagText = post.role === 'client' ? '徵件需求' : '作品案例';
+        const isClient = post.role === 'client';
+        const card = document.createElement('div');
+        card.className = "post-card bg-white rounded-2xl overflow-hidden shadow-md border border-gray-100";
+        card.onclick = () => showDetail(post.title, post.description, post.author, isClient ? '徵件需求' : '作品案例');
         
-        const safeTitle = (post.title || "").replace(/'/g, "\\'");
-        const safeDesc = (post.description || "").replace(/'/g, "\\'").replace(/\n/g, "\\n");
-        const safeAuthor = (post.author || "匿名").replace(/'/g, "\\'");
-
-        const card = `
-            <div class="post-card bg-white rounded-2xl overflow-hidden shadow-md border border-gray-100" 
-                 onclick="showDetail('${safeTitle}', '${safeDesc}', '${safeAuthor}', '${tagText}')">
-                <div class="aspect-square bg-gray-200 relative">
-                    <img src="${post.image_url || 'https://images.unsplash.com/photo-1614728263952-84ea256f9679?w=400'}" class="w-full h-full object-cover">
-                    <span class="absolute top-2 left-2 ${tagClass} text-[9px] px-2 py-1 rounded-lg font-black uppercase shadow-sm">${tagText}</span>
-                </div>
-                <div class="p-3 text-left">
-                    <h3 class="text-sm font-black text-gray-800 truncate mb-1">${post.title}</h3>
-                    <p class="text-[10px] text-gray-400 line-clamp-2 leading-relaxed">${post.description}</p>
-                </div>
+        card.innerHTML = `
+            <div class="aspect-square bg-gray-200 relative">
+                <img src="${post.image_url || 'https://images.unsplash.com/photo-1614728263952-84ea256f9679?w=400'}" class="w-full h-full object-cover">
+                <span class="absolute top-2 left-2 ${isClient ? 'bg-amber-100 text-amber-700' : 'bg-indigo-100 text-indigo-700'} text-[9px] px-2 py-1 rounded-lg font-black uppercase">${isClient ? '需求' : '案例'}</span>
+            </div>
+            <div class="p-3">
+                <h3 class="text-sm font-black text-gray-800 truncate">${post.title}</h3>
+                <p class="text-[10px] text-gray-400 line-clamp-2">${post.description}</p>
             </div>`;
-        container.insertAdjacentHTML('afterbegin', card);
+        container.prepend(card);
     }
 
-    // --- 5. 發布貼文 ---
     async function submitPost() {
         const title = document.getElementById('post-title').value;
         const desc = document.getElementById('post-desc').value;
-        const author = currentUser ? currentUser.name : "匿名";
-        
-        if(!title || !desc) return alert("內容不能空白喔！");
-
-        const btn = document.querySelector('button[onclick="submitPost()"]');
-        btn.disabled = true;
-        btn.innerText = "發布中...";
+        if (!title || !desc) return alert("請填寫內容");
 
         const { error } = await sb.from('posts').insert([
-            { title, description: desc, author, role: currentRole, image_url: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400' }
+            { title, description: desc, author: currentUser.name, role: currentRole, image_url: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400' }
         ]);
 
-        btn.disabled = false;
-        btn.innerText = "發布";
-
-        if (error) alert("發布失敗：" + error.message);
+        if (error) alert("發布失敗");
         else {
             closePostModal();
-            document.getElementById('post-title').value = "";
-            document.getElementById('post-desc').value = "";
-            setTimeout(async () => {
-                await loadPosts();
-                switchTab('home');
-            }, 500);
+            loadPosts();
         }
     }
 
-    // --- 6. UI 控制 ---
+    // --- 5. UI 切換 ---
     function switchTab(tab) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden-section'));
-        const target = document.getElementById(`tab-${tab}`);
-        if (target) target.classList.remove('hidden-section');
-        
+        document.getElementById(`tab-${tab}`).classList.remove('hidden-section');
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('tab-active'));
-        const btn = document.getElementById(`btn-${tab}`);
-        if (btn) btn.classList.add('tab-active');
+        document.getElementById(`btn-${tab}`).classList.add('tab-active');
     }
 
     function handlePostAction() {
         const dynamicFields = document.getElementById('dynamic-fields');
         if (currentRole === 'client') {
-            dynamicFields.innerHTML = `<div><label class="block text-[10px] font-bold text-gray-400 mb-1 uppercase">預算</label><input type="number" class="w-full border-b py-2 outline-none text-sm font-bold text-indigo-600"></div><div><label class="block text-[10px] font-bold text-gray-400 mb-1 uppercase">日期</label><input type="date" class="w-full border-b py-2 outline-none text-sm"></div>`;
+            dynamicFields.innerHTML = `<div><label class="block text-[10px] font-bold text-gray-400 mb-1">預算</label><input type="number" class="w-full border-b py-2 outline-none text-sm font-bold"></div><div><label class="block text-[10px] font-bold text-gray-400 mb-1">期限</label><input type="date" class="w-full border-b py-2 outline-none text-sm"></div>`;
         } else {
-            dynamicFields.innerHTML = `<div><label class="block text-[10px] font-bold text-gray-400 mb-1 uppercase">材質</label><select class="w-full border-b py-2 outline-none text-sm font-bold"><option>EVA 泡沫</option><option>3D 列印</option></select></div><div><label class="block text-[10px] font-bold text-red-500 mb-1 uppercase">修改次數</label><select class="w-full border-b py-2 outline-none text-sm text-red-600 font-bold"><option>1 次</option></select></div>`;
+            dynamicFields.innerHTML = `<div><label class="block text-[10px] font-bold text-gray-400 mb-1">材質</label><input type="text" class="w-full border-b py-2 outline-none text-sm"></div><div><label class="block text-[10px] font-bold text-gray-400 mb-1">製作天數</label><input type="number" class="w-full border-b py-2 outline-none text-sm"></div>`;
         }
         document.getElementById('modal-post').classList.remove('hidden');
     }
@@ -455,75 +378,6 @@ function subscribeToPosts() {
     }
 
     function closeDetail() { document.getElementById('modal-detail').classList.add('hidden'); }
- // --- 快速登入功能 ---
-    function quickLogin() {
-        document.getElementById('page-welcome').classList.add('hidden-section');
-        document.getElementById('page-quick-login').classList.remove('hidden');
-    }
-
-    function backToWelcome() {
-        document.getElementById('page-quick-login').classList.add('hidden');
-        document.getElementById('page-welcome').classList.remove('hidden-section');
-        document.getElementById('login-phone').value = '';
-        document.getElementById('login-otp').value = '';
-    }
-
-async function confirmLogin() {
-        const phone = document.getElementById('login-phone').value;
-        const otp = document.getElementById('login-otp').value;
-
-        if (!phone) return alert("請輸入手機號碼");
-        if (otp !== "888888") return alert("驗證碼請輸入 888888");
-
-        const loginBtn = document.querySelector('button[onclick="confirmLogin()"]');
-        loginBtn.innerText = "驗證中...";
-        loginBtn.disabled = true;
-
-        try {
-            // 1. 從雲端抓取使用者資料
-            const { data, error } = await sb
-                .from('users')
-                .select('*')
-                .eq('phone', phone);
-
-            if (error) throw error;
-
-            if (data && data.length > 0) {
-                currentUser = data[0];
-                
-                // 2. 存入本地記憶
-                localStorage.setItem('matchup_user', JSON.stringify(currentUser));
-                applyUserUI(currentUser.name, currentUser.role);
-                
-                // 3. 強制關閉所有登入層 (關鍵修正)
-                const pagesToHide = ['page-welcome', 'page-quick-login', 'page-final-form', 'modal-legal'];
-                pagesToHide.forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.style.display = 'none'; 
-                });
-                
-                // 4. 顯示主程式
-                const appMain = document.getElementById('app-main');
-                if (appMain) {
-                    appMain.classList.remove('hidden-section');
-                    appMain.style.display = 'block'; 
-                }
-                
-                switchTab('home');
-                await loadPosts();
-                subscribeToPosts();
-                console.log("雲端登入成功：" + currentUser.name);
-            } else {
-                alert("查無此手機號碼，請先選擇身分進行註冊");
-            }
-        } catch (err) {
-            console.error("登入出錯:", err.message);
-            alert("登入失敗，請檢查網路連線");
-        } finally {
-            loginBtn.innerText = "登入";
-            loginBtn.disabled = false;
-        }
-    }
 </script>
 </body>
 </html>
