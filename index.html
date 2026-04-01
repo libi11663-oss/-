@@ -278,34 +278,47 @@
             enterBtn.disabled = false;
         }
     }
-       // --- 登出功能 ---
+    // --- 登出功能 (修正版) ---
     function logout() {
         if (confirm("確定要登出並切換帳號嗎？")) {
-            // 清除所有登入狀態
+            // 1. 清除本地存儲
             localStorage.removeItem('matchup_user');
             currentUser = null;
             
-            // 重置 UI 狀態
-            document.getElementById('page-welcome').classList.remove('hidden-section');
-            document.getElementById('page-final-form').classList.add('hidden');
-            document.getElementById('app-main').classList.add('hidden-section');
-            document.getElementById('modal-legal').classList.add('hidden');
-            document.getElementById('modal-detail').classList.add('hidden');
-            document.getElementById('modal-post').classList.add('hidden');
+            // 2. 徹底重置所有頁面的顯示狀態
+            const allPages = ['page-welcome', 'page-quick-login', 'page-final-form', 'modal-legal', 'app-main', 'modal-detail', 'modal-post'];
+            allPages.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.style.display = 'none'; // 先全部關掉
+                    el.classList.add('hidden-section'); // 同步 class 狀態
+                }
+            });
             
-            // 清空表單
-            document.getElementById('real-name').value = '';
-            document.getElementById('user-phone').value = '';
-            document.getElementById('otp-code').value = '';
-            document.getElementById('display-name').value = '';
-            document.getElementById('legal-check').checked = false;
+            // 3. 只顯示歡迎頁
+            const welcome = document.getElementById('page-welcome');
+            if (welcome) {
+                welcome.style.display = 'flex'; // 歡迎頁是 flex 佈局
+                welcome.classList.remove('hidden-section');
+            }
             
-            // 重置按鈕狀態
+            // 4. 清空輸入欄位
+            ['real-name', 'user-phone', 'otp-code', 'display-name', 'login-phone', 'login-otp'].forEach(id => {
+                const input = document.getElementById(id);
+                if (input) input.value = '';
+            });
+            
+            const legalCheck = document.getElementById('legal-check');
+            if (legalCheck) legalCheck.checked = false;
+            
+            // 5. 重置協議按鈕
             const btn = document.getElementById('btn-legal-next');
-            btn.disabled = true;
-            btn.className = "w-full bg-gray-300 text-white py-4 rounded-xl font-bold";
+            if (btn) {
+                btn.disabled = true;
+                btn.className = "w-full bg-gray-300 text-white py-4 rounded-xl font-bold";
+            }
             
-            console.log("已登出，回到歡迎頁");
+            console.log("已徹底登出並重置狀態");
         }
     }
 
